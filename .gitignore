@@ -1,0 +1,3 @@
+# Ignore ImGui dependencies
+include/dep
+include/dep/*
