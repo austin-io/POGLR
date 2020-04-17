@@ -41,6 +41,6 @@ void Mesh::parseFile(const std::string& filePath){
     this->m_Positions.reserve(posV.size());
     this->m_Indices.reserve(indV.size());
     
-    std::copy(posV.begin(), posV.end(), this->m_Positions.begin());  
-    std::copy(indV.begin(), indV.end(), this->m_Indices.begin()); 
+    std::copy(posV.begin(), posV.end(), std::back_inserter(this->m_Positions));
+    std::copy(indV.begin(), indV.end(), std::back_inserter(this->m_Indices));
 }

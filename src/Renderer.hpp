@@ -27,6 +27,10 @@ class Renderer {
 
         void clear() const;
         void drawTris(const VertexArray& va, const IndexBuffer& ibo, const Shader& shader);
+        // Todo
+        // drawQuads()
+        // update()
+        // Batch rendering system
     protected:
 
 };
