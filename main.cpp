@@ -16,6 +16,7 @@
 #include "src/Shader.hpp"
 #include "src/VertexArray.hpp"
 #include "src/Mesh.hpp"
+#include "src/SuperCube.hpp"
 
 /*
 struct ShaderSources{
@@ -83,6 +84,30 @@ int main(int argc, char** argv){
     }; // count = 8 * 3 = 24
     */
 
+    std::string grid = 
+        "0101"
+        "1010"
+        "0101"
+        "1010"
+    
+        "1010"
+        "0101"
+        "1010"
+        "0101"
+
+        "0101"
+        "1010"
+        "0101"
+        "1010"
+
+        "1010"
+        "0101"
+        "1010"
+        "0101";
+    
+    // grid template, width, height, depth, xSize, ySize, zSize
+    SuperCube sc = SuperCube(grid.c_str(), 1, 4, 16, 4, 4, 4);
+
     std::array<glm::vec3, 8> positions = {
         glm::vec3( -0.5f, -0.5f, -0.5f),
         glm::vec3(-0.5f,  0.5f, -0.5f),
@@ -109,7 +134,7 @@ int main(int argc, char** argv){
         6,7,4,
         7,5,4
     }; // count = 12 * 3 = 36
-
+/*
     Mesh mesh;
 
     if(argc > 1){
@@ -118,6 +143,7 @@ int main(int argc, char** argv){
     } else {
         mesh.parseFile("./models/cube.obj");
     }
+*/
     Renderer renderer;
 
     // Model * View * Projection Matrix ( OpenGL requires it to be in reverse )
@@ -143,7 +169,7 @@ int main(int argc, char** argv){
     //GLCALL(glBindVertexArray(vao));
 
     // Buffer is the ID for the data
-    VertexBuffer vb(mesh.getVert(), mesh.getCount() * 3 * sizeof(float));
+    VertexBuffer vb(sc.getVert(), sc.getCount() * 3 * sizeof(float));
     VertexBufferLayout vbl;
     vbl.Push<float>(3);
 
@@ -169,7 +195,7 @@ int main(int argc, char** argv){
 
     // Generate and populate Index Buffer
     // ibo = Index Buffer Object
-    IndexBuffer ib(mesh.getInd(), mesh.getICount());
+    IndexBuffer ib(sc.getInd(), sc.getICount());
     
     // Read and return the shader files as strings
     //ShaderSources sources = parseShader("res/shaders/base.shader");
