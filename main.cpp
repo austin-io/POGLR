@@ -70,40 +70,27 @@ int main(int argc, char** argv){
     GLCALL(std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl);
     GLCALL(glEnable(GL_DEPTH_TEST));
     GLCALL(glEnable(GL_CULL_FACE));
-    /*
-    // Vertices temp data
-    float positions[] = {
-        -0.5f, -0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
-    }; // count = 8 * 3 = 24
-    */
-
-    std::string grid = 
-        "0101"
-        "1010"
-        "0101"
-        "1010"
     
-        "1010"
-        "0101"
-        "1010"
-        "0101"
+    std::string grid = 
+        "1111"
+        "1001"
+        "1001"
+        "1111"
+    
+        "1001"
+        "0000"
+        "0000"
+        "1001"
 
-        "0101"
-        "1010"
-        "0101"
-        "1010"
+        "1001"
+        "0000"
+        "0000"
+        "1001"
 
-        "1010"
-        "0101"
-        "1010"
-        "0101";
+        "1111"
+        "1001"
+        "1001"
+        "1111";
     
     // grid template, width, height, depth, xSize, ySize, zSize
     SuperCube sc = SuperCube(grid.c_str(), 1, 4, 16, 4, 4, 4);
