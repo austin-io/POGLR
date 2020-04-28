@@ -10,8 +10,8 @@ class Mesh {
 
         void parseFile(const std::string& filePath);
 
-        inline const glm::vec3 * getVert() const {return this->m_Positions.data();}
-        inline const unsigned int * getInd() const {return this->m_Indices.data();}
+        inline const glm::vec3 * getVert() const {return this->m_PosData;}
+        inline const unsigned int * getInd() const {return this->m_IndData;}
 
         inline const unsigned int getCount() { return this->m_Positions.size(); }
         inline const unsigned int getICount() { return this->m_Indices.size(); }
@@ -19,5 +19,8 @@ class Mesh {
     protected:
         std::vector<glm::vec3> m_Positions;
         std::vector<unsigned int> m_Indices;
+        
+        glm::vec3* m_PosData;
+        unsigned int* m_IndData;
 
 };
