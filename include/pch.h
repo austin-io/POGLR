@@ -11,6 +11,9 @@
 #include <cmath>
 #include <map>
 #include <algorithm>
+#include <bitset>
+#include <cstdlib>
+#include <ctime>
 
 // OpenGL Graphics Library
 #include <GL/glew.h>

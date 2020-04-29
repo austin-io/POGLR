@@ -4,10 +4,6 @@
  * */// Precompiled headers for faster compilation
 #include "pch.h"
 
-#include <bitset>
-#include <cstdlib>
-#include <ctime>
-
 #define DEBUG
 
 // OpenGL Rendering abstraction
@@ -79,13 +75,14 @@ int main(int argc, char** argv){
     std::string grid;
 
     std::cout << "Generating Grid\n";
-    for(char i = 0; i < 10*10; i++){
-        grid += std::bitset<10>(std::rand() % 1024).to_string();
+    const unsigned int GRID_SIZE = 10;
+    for(char i = 0; i < GRID_SIZE*GRID_SIZE; i++){
+        grid += std::bitset<GRID_SIZE>(std::rand() % (unsigned int)std::pow(2, GRID_SIZE)).to_string();
     }
     
     std::cout << "Attempting to make supercube\n";
     // grid template, height, depth, MaxSize
-    SuperCube sc = SuperCube(grid.c_str(), 10, 100, 10);
+    SuperCube sc = SuperCube(grid.c_str(), GRID_SIZE, GRID_SIZE*GRID_SIZE, GRID_SIZE);
 
     std::array<glm::vec3, 8> positions = {
         glm::vec3( -0.5f, -0.5f, -0.5f),
