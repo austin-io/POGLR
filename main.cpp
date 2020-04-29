@@ -78,7 +78,9 @@ int main(int argc, char** argv){
 
     const unsigned int GRID_SIZE = 32;
     for(char i = 0; i < GRID_SIZE; i++){
-        for(char j = 0; j < GRID_SIZE * 2; j++) grid += std::bitset<16>(std::rand() % 65536).to_string();
+        for(char j = 0; j < GRID_SIZE * 2; j++){
+            grid += std::bitset<16>(std::rand() % 65000).to_string();
+        }
     }
     
     std::cout << "Attempting to make supercube\n";
@@ -272,7 +274,7 @@ int main(int argc, char** argv){
         //shader.setUniform4f("u_Color", 0.5f, 0.5f, 1.0f, 1.0f);
         renderer.drawTris(va, ib, shader);
         
-        if(glfwGetTime() - lastTime > 0.1){
+        if(glfwGetTime() - lastTime > 0.0){
             grid = newGrid(grid, sc);
 
             sc.updateGrid(grid.c_str());
