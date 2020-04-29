@@ -78,12 +78,14 @@ int main(int argc, char** argv){
     
     std::string grid;
 
-    for(char i = 0; i < 64; i++){
-        grid += std::bitset<8>(std::rand() % 256).to_string();
+    std::cout << "Generating Grid\n";
+    for(char i = 0; i < 10*10; i++){
+        grid += std::bitset<10>(std::rand() % 1024).to_string();
     }
     
+    std::cout << "Attempting to make supercube\n";
     // grid template, height, depth, MaxSize
-    SuperCube sc = SuperCube(grid.c_str(), 8, 64, 8);
+    SuperCube sc = SuperCube(grid.c_str(), 10, 100, 10);
 
     std::array<glm::vec3, 8> positions = {
         glm::vec3( -0.5f, -0.5f, -0.5f),
