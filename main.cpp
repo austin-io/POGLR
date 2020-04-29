@@ -84,13 +84,13 @@ int main(int argc, char** argv){
             //grid += std::bitset<24>(0).to_string();
         }
     }
-    
-    std::cout << "Attempting to make supercube\n";
+
+    std::cout << "Finished Generating Grid:\nAttempting to make supercube\n";
     // grid template, height, depth, MaxSize
     SuperCube sc = SuperCube(grid.c_str(), GRID_SIZE, GRID_SIZE*GRID_SIZE, GRID_SIZE);
 
     std::cout << "SuperCube Generated\n";
-
+/*
     std::array<glm::vec3, 8> positions = {
         glm::vec3( -0.5f, -0.5f, -0.5f),
         glm::vec3(-0.5f,  0.5f, -0.5f),
@@ -117,7 +117,7 @@ int main(int argc, char** argv){
         6,7,4,
         7,5,4
     }; // count = 12 * 3 = 36
-/*
+
     Mesh mesh;
 
     if(argc > 1){
