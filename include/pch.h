@@ -10,6 +10,7 @@
 #include <sstream>
 #include <cmath>
 #include <map>
+#include <algorithm>
 
 // OpenGL Graphics Library
 #include <GL/glew.h>

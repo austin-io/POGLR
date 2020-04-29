@@ -11,6 +11,8 @@ public:
     inline unsigned int getID() const { return this->m_RendererID;}
     inline unsigned int getCount() const { return this->m_Count;}
 
+    void setData(const unsigned int* data, const unsigned int& count);
+
 private:
     unsigned int m_RendererID;
     unsigned int m_Count;

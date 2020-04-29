@@ -10,8 +10,10 @@ IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count)
     
     // Create a new buffer
     GLCALL(glGenBuffers(1, &m_RendererID));
+    
     // Bind means select the buffer
     GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID));
+    
     // Populate the buffer with data (type, size, pointer, draw_type)
     GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW));
     GLCALL(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, count * sizeof(unsigned int), data));
@@ -23,6 +25,13 @@ IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count)
 
 IndexBuffer::~IndexBuffer(){
     GLCALL(glDeleteBuffers(1, &m_RendererID));
+}
+
+void IndexBuffer::setData(const unsigned int* data, const unsigned int& count){
+    this->Bind();
+
+    GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW));
+    GLCALL(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, count * sizeof(unsigned int), data));
 }
 
 void IndexBuffer::Bind() const {

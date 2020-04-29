@@ -1,10 +1,12 @@
 /*
  * Learning OpenGL 
  * Experimental program following TheCherno tutorial series
- * */
-
-// Precompiled headers for faster compilation
+ * */// Precompiled headers for faster compilation
 #include "pch.h"
+
+#include <bitset>
+#include <cstdlib>
+#include <ctime>
 
 #define DEBUG
 
@@ -31,6 +33,7 @@ enum ShaderType {
 
 // Function called when event happens
 void keyCallback(GLFWwindow* win, int key, int scancode, int action, int mods);
+std::string newGrid(const std::string& grid, const SuperCube& sc);
 
 //static ShaderSources parseShader(const std::string& filepath);
 //static unsigned int compileShader(const std::string& source, unsigned int type);
@@ -38,6 +41,8 @@ void keyCallback(GLFWwindow* win, int key, int scancode, int action, int mods);
 
 int main(int argc, char** argv){
     
+    std::srand(std::time(0));
+
     // Main window provided by GLFW (not created yet)
     GLFWwindow* win;
 
@@ -71,29 +76,14 @@ int main(int argc, char** argv){
     GLCALL(glEnable(GL_DEPTH_TEST));
     GLCALL(glEnable(GL_CULL_FACE));
     
-    std::string grid = 
-        "1111"
-        "1001"
-        "1001"
-        "1111"
-    
-        "1001"
-        "0000"
-        "0000"
-        "1001"
+    std::string grid;
 
-        "1001"
-        "0000"
-        "0000"
-        "1001"
-
-        "1111"
-        "1001"
-        "1001"
-        "1111";
+    for(char i = 0; i < 64; i++){
+        grid += std::bitset<8>(std::rand() % 256).to_string();
+    }
     
-    // grid template, width, height, depth, xSize, ySize, zSize
-    SuperCube sc = SuperCube(grid.c_str(), 1, 4, 16, 4, 4, 4);
+    // grid template, height, depth, MaxSize
+    SuperCube sc = SuperCube(grid.c_str(), 8, 64, 8);
 
     std::array<glm::vec3, 8> positions = {
         glm::vec3( -0.5f, -0.5f, -0.5f),
@@ -216,6 +206,8 @@ int main(int argc, char** argv){
     ImGui_ImplOpenGL3_Init("#version 300 es");
     ImGui::StyleColorsDark();
 
+    double lastTime = glfwGetTime();
+
     while(!glfwWindowShouldClose(win)){
 
         float ratio;
@@ -257,7 +249,6 @@ int main(int argc, char** argv){
         model = glm::rotate(model, glm::radians(trans[2]), glm::vec3(0.f, 0.f, 1.f));
         glm::mat4 MVP = proj * view * model;
         
-        
         // Update color uniform
         //GLCALL(glUniform4f(location, colorValue, 0.5f, 0.5f, 1.0f));
         shader.setUniform4f("u_Color", uColor[0], uColor[1], uColor[2], 1.0f);
@@ -279,6 +270,17 @@ int main(int argc, char** argv){
         //shader.setUniform4f("u_Color", 0.5f, 0.5f, 1.0f, 1.0f);
         renderer.drawTris(va, ib, shader);
         
+        if(glfwGetTime() - lastTime > 0.1){
+            grid = newGrid(grid, sc);
+
+            sc.updateGrid(grid.c_str());
+            
+            vb.setData(sc.getVert(), sc.getCount() * 3 * sizeof(float));
+            ib.setData(sc.getInd(), sc.getICount());
+
+            lastTime = glfwGetTime();
+        }
+
         //shader.setUniform4f("u_Color", 0.f, 0.f, 0.f, 1.f);
         //GLCALL(glDrawElements(GL_LINES, ib.getCount(), GL_UNSIGNED_INT, nullptr));
         
@@ -296,7 +298,6 @@ int main(int argc, char** argv){
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(win);
         glfwPollEvents();
-    
     }
 
     // Clean up 
@@ -314,6 +315,70 @@ void keyCallback(GLFWwindow* win, int key, int scancode, int action, int mods){
         std::cout << "Close Program\n";
         glfwSetWindowShouldClose(win, GLFW_TRUE);
     }
+}
+
+std::string newGrid(const std::string& grid, const SuperCube& sc){
+
+    // Rules for Cellular Automata:
+    // 1. Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
+    // 2. Any live cell with two or three live neighbours lives on to the next generation.
+    // 3. Any live cell with more than three live neighbours dies, as if by overpopulation.
+    // 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+    
+    // '0' is dead, '1' is alive
+    // There are 6 neighbors in 3D
+
+    std::string out = grid;
+    unsigned int idx;
+
+    for(unsigned int z = 0; z < sc.getMaxSize(); z++)
+    for(unsigned int y = 0; y < sc.getMaxSize(); y++)
+    for(unsigned int x = 0; x < sc.getMaxSize(); x++){
+        // index of current cell
+        idx = sc.getIndex(x,y,z);
+        int neighbors = 0;
+
+        // Get neighbors
+        unsigned int nx, ny, nz, nIdx;
+
+        //std::cout << "ID: " << idx << " || Neighbor IDs: \n";
+
+        // Scan through all neighbors
+        for(nz = z - 1 >= 0 ? z - 1 : z; nz < z + 2 && nz < sc.getMaxSize(); nz++)
+        for(ny = y - 1 >= 0 ? y - 1 : y; ny < y + 2 && ny < sc.getMaxSize(); ny++)
+        for(nx = x - 1 >= 0 ? x - 1 : x; nx < x + 2 && nx < sc.getMaxSize(); nx++){
+            nIdx = sc.getIndex(nx, ny, nz);
+            //std::cout << nIdx << ", ";
+            if(nIdx != idx && grid[nIdx] == '1') neighbors++;
+        }
+
+        //std::cout << "\nTotal: " << neighbors << std::endl;
+        
+        // Alive
+        if(grid[idx] != '0'){
+            
+            if(neighbors < 3 || neighbors > 5){
+                out[idx] = '0';
+            } else {
+                out[idx] = '1';
+            }
+
+        } 
+        // Dead
+        else {
+            
+            if(neighbors == 3){
+                out[idx] = '1';
+            } else {
+                out[idx] = '0';
+            }
+        }
+
+    }
+    
+    //std::cout << "New Grid: " << out << std::endl;
+
+    return out;
 }
 
 /*
