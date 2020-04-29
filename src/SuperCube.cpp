@@ -73,6 +73,9 @@ SuperCube::SuperCube(const char* grid, const unsigned int& height, const unsigne
 SuperCube::~SuperCube(){
     delete[] this->m_PosData;
     delete[] this->m_IndData;
+
+    this->m_PosData = nullptr;
+    this->m_IndData = nullptr;
 }
 
 

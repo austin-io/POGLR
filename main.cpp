@@ -72,14 +72,16 @@ int main(int argc, char** argv){
     GLCALL(glEnable(GL_DEPTH_TEST));
     GLCALL(glEnable(GL_CULL_FACE));
     
-    std::string grid;
+    std::string grid = "";
 
     std::cout << "Generating Grid\n";
 
     const unsigned int GRID_SIZE = 32;
     for(char i = 0; i < GRID_SIZE; i++){
-        for(char j = 0; j < GRID_SIZE * 2; j++){
-            grid += std::bitset<16>(std::rand() % 65000).to_string();
+        for(char j = 0; j < GRID_SIZE; j++){
+            grid += std::bitset<16>(std::rand() % 65536).to_string();
+            grid += std::bitset<16>(std::rand() % 65536).to_string();
+            //grid += std::bitset<24>(0).to_string();
         }
     }
     
@@ -134,8 +136,8 @@ int main(int argc, char** argv){
     
     glm::mat4 proj = glm::perspective(glm::radians(60.f), 640.f/640.f, 0.01f, 100.f);
     glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -3.f));
-    glm::vec3 trans(0.f);
-    glm::vec3 scaler(1.f);
+    glm::vec3 trans(30.f, -45.f, 0.f);
+    glm::vec3 scaler(0.03f);
     glm::vec3 uColor(1.f);
     glm::vec3 uLightDir(1.f);
     float scaleFactor = 1;
