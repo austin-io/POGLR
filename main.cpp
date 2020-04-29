@@ -75,14 +75,17 @@ int main(int argc, char** argv){
     std::string grid;
 
     std::cout << "Generating Grid\n";
-    const unsigned int GRID_SIZE = 10;
-    for(char i = 0; i < GRID_SIZE*GRID_SIZE; i++){
-        grid += std::bitset<GRID_SIZE>(std::rand() % (unsigned int)std::pow(2, GRID_SIZE)).to_string();
+
+    const unsigned int GRID_SIZE = 32;
+    for(char i = 0; i < GRID_SIZE; i++){
+        for(char j = 0; j < GRID_SIZE * 2; j++) grid += std::bitset<16>(std::rand() % 65536).to_string();
     }
     
     std::cout << "Attempting to make supercube\n";
     // grid template, height, depth, MaxSize
     SuperCube sc = SuperCube(grid.c_str(), GRID_SIZE, GRID_SIZE*GRID_SIZE, GRID_SIZE);
+
+    std::cout << "SuperCube Generated\n";
 
     std::array<glm::vec3, 8> positions = {
         glm::vec3( -0.5f, -0.5f, -0.5f),
@@ -278,6 +281,8 @@ int main(int argc, char** argv){
             ib.setData(sc.getInd(), sc.getICount());
 
             lastTime = glfwGetTime();
+
+            //std::cout << "New Frame\n";
         }
 
         //shader.setUniform4f("u_Color", 0.f, 0.f, 0.f, 1.f);

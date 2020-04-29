@@ -42,7 +42,7 @@ SuperCube::SuperCube(const char* grid, const unsigned int& height, const unsigne
         
         unsigned int idx = this->getIndex(x,y,z);
         
-        std::cout << "Index: " << idx << std::endl;
+        //std::cout << "Index: " << idx << std::endl;
         
         if(grid[idx] != '0'){
             
@@ -58,8 +58,8 @@ SuperCube::SuperCube(const char* grid, const unsigned int& height, const unsigne
 
     std::cout << "Cubes: " << counter << std::endl;
 
-    this->m_PosData = new glm::vec3[this->m_Positions.size()];
-    this->m_IndData = new unsigned int[this->m_Indices.size()];
+    this->m_PosData = new glm::vec3[positions.size() * this->m_MaxSize * this->m_MaxSize * this->m_MaxSize];
+    this->m_IndData = new unsigned int[indices.size() * this->m_MaxSize * this->m_MaxSize * this->m_MaxSize];
 
     for(unsigned int i = 0; i < this->m_Positions.size(); i++){
         this->m_PosData[i] = this->m_Positions[i];
@@ -133,11 +133,11 @@ void SuperCube::updateGrid(const char* grid){
     //std::cout << "Cubes: " << counter << std::endl;
     
     // Delete for now, maybe repurpose them later
-    delete[] this->m_PosData;
-    delete[] this->m_IndData;
+    //delete[] this->m_PosData;
+    //delete[] this->m_IndData;
     
-    this->m_PosData = new glm::vec3[this->m_Positions.size()];
-    this->m_IndData = new unsigned int[this->m_Indices.size()];
+    //this->m_PosData = new glm::vec3[this->m_Positions.size()];
+    //this->m_IndData = new unsigned int[this->m_Indices.size()];
 
     for(unsigned int i = 0; i < this->m_Positions.size(); i++)
         this->m_PosData[i] = this->m_Positions[i];
