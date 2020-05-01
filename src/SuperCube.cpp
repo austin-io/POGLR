@@ -1,7 +1,18 @@
 #include "SuperCube.hpp"
 
 SuperCube::SuperCube(const char* grid, const unsigned int& height, const unsigned int& depth, const unsigned int& MAX_SIZE){
+    this->create(grid, height, depth, MAX_SIZE);
+}
 
+SuperCube::~SuperCube(){
+    delete[] this->m_PosData;
+    delete[] this->m_IndData;
+
+    this->m_PosData = nullptr;
+    this->m_IndData = nullptr;
+}
+
+void SuperCube::create(const char* grid, const unsigned int& height, const unsigned int& depth, const unsigned int& MAX_SIZE){
     this->m_Height = height;
     this->m_Depth  = depth;
     this->m_MaxSize = MAX_SIZE;
@@ -69,15 +80,6 @@ SuperCube::SuperCube(const char* grid, const unsigned int& height, const unsigne
         this->m_IndData[i] = this->m_Indices[i];
     }
 }
-
-SuperCube::~SuperCube(){
-    delete[] this->m_PosData;
-    delete[] this->m_IndData;
-
-    this->m_PosData = nullptr;
-    this->m_IndData = nullptr;
-}
-
 
 void SuperCube::updateGrid(const char* grid){
 

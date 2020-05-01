@@ -14,6 +14,7 @@
 #include <bitset>
 #include <cstdlib>
 #include <ctime>
+#include <functional>
 
 // OpenGL Graphics Library
 #include <GL/glew.h>

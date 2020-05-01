@@ -13,7 +13,9 @@ struct ShaderSources {
 
 class Shader {
     public:
+        Shader(){std::cout << __FILE__ << std::endl;}
         Shader(const std::string& filepath);
+        void create(const std::string& filepath);
         virtual ~Shader();
 
         void Bind() const;

@@ -52,3 +52,36 @@ void Mesh::parseFile(const std::string& filePath){
         this->m_IndData[i] = this->m_Indices[i];
     }
 }
+
+void Mesh::loadData(const glm::vec3* posData, const unsigned int* indData, const unsigned int count, const unsigned int iCount){
+    this->m_Positions.clear();
+    this->m_Indices.clear();
+
+    if(this->m_PosData != nullptr || this->m_IndData != nullptr){
+        delete[] this->m_PosData;
+        delete[] this->m_IndData;
+    }
+    
+    this->m_PosData = new glm::vec3[count];
+    this->m_IndData = new unsigned int[iCount];
+
+    for(unsigned int i = 0; i < count; i++){
+        this->m_PosData[i] = posData[i];
+        this->m_Positions.push_back(posData[i]);
+    }
+
+    for(unsigned int i = 0; i < iCount; i++){
+        this->m_IndData[i] = indData[i];
+        this->m_Indices.push_back(indData[i]);
+    }
+}
+
+void Mesh::translate(const glm::vec3& tran){
+    for(unsigned int i = 0; i < this->getCount(); i++){
+        this->m_PosData[i] += tran;
+    }
+}
+
+void Mesh::rotate(const glm::vec3& rot){
+
+}

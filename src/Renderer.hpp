@@ -2,10 +2,6 @@
 
 #include "pch.h"
 
-#include "IndexBuffer.hpp"
-#include "Shader.hpp"
-#include "VertexArray.hpp"
-
 // Creates a line break if an error is found
 #define ASSERT(x) if(!(x)) assert(x);
 #define DEBUG
@@ -20,17 +16,47 @@
 void GLClearErrors();
 bool GLLogCall(const char*, const char*, int);
 
+#include "IndexBuffer.hpp"
+#include "Shader.hpp"
+#include "VertexBuffer.hpp"
+#include "VertexBufferLayout.hpp"
+#include "VertexArray.hpp"
+#include "Mesh.hpp"
+
 class Renderer {
     public:
-        Renderer();
+        Renderer(const int& h, const int& w, const std::string& title);
         virtual ~Renderer();
 
+        void init();
+        void coreUpdate();
+        void drawMesh(Mesh& mesh);
+        void flush();
         void clear() const;
-        void drawTris(const VertexArray& va, const IndexBuffer& ibo, const Shader& shader);
-        // Todo
-        // drawQuads()
-        // update()
-        // Batch rendering system
-    protected:
 
+        virtual void onCreate();
+        virtual void onUpdate(double);
+
+    protected:
+        // Main window provided by GLFW (not created yet)
+        GLFWwindow* win;
+
+        const unsigned long MAXSIZE = 10000;
+        unsigned long m_Count, m_ICount;
+
+        std::vector<glm::vec3> m_Vertices;
+        std::vector<unsigned int> m_Indices;
+
+        glm::vec3* m_VertData;
+        unsigned int* m_IndData;
+
+        double dTime;
+
+        //Mesh mesh = Mesh(); //("./models/cube.obj");
+        VertexBuffer vb = VertexBuffer(); //(this->m_VertData, this->MAXSIZE * 3 * sizeof(float));
+        VertexBufferLayout vbl = VertexBufferLayout();
+        VertexArray va = VertexArray();
+        IndexBuffer ib = IndexBuffer(); //(this->m_IndData, this->MAXSIZE * 3);
+        Shader shader = Shader();//("res/shaders/base.shader");
+        
 };

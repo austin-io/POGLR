@@ -2,15 +2,19 @@
 
 #include "Renderer.hpp"
 
-Shader::Shader(const std::string& filepath)
-    : m_Filepath(filepath), m_RendererID(0) {
-    
-    ShaderSources sources = this->parseShader(filepath);
-    this->m_RendererID = this->createShader(sources.vertexShader, sources.fragShader);
+Shader::Shader(const std::string& filepath){
+    this->create(filepath);
 }
 
 Shader::~Shader(){
     GLCALL(glDeleteProgram(this->m_RendererID));
+}
+
+void Shader::create(const std::string& filepath){
+    this->m_Filepath = filepath;
+
+    ShaderSources sources = this->parseShader(filepath);
+    this->m_RendererID = this->createShader(sources.vertexShader, sources.fragShader);
 }
 
 void Shader::Bind() const {

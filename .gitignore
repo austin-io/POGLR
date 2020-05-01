@@ -1,3 +1,5 @@
 # Ignore ImGui dependencies
+main.old
+bin/out
 include/dep
 include/dep/*

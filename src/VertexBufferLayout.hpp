@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "Renderer.hpp"
+//#include "Renderer.hpp"
 
 struct VertexBufferElement {
     unsigned int count;
@@ -22,7 +22,7 @@ struct VertexBufferElement {
 class VertexBufferLayout {
     public:
         VertexBufferLayout()
-            : m_Stride(0) {}
+            : m_Stride(0) {std::cout << __FILE__ << std::endl;}
 
         virtual ~VertexBufferLayout(){}
 

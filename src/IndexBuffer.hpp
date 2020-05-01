@@ -2,7 +2,9 @@
 
 class IndexBuffer {
 public:
+    IndexBuffer(){std::cout << __FILE__ << std::endl;}
     IndexBuffer(const unsigned int* data, unsigned int count);
+    void create(const unsigned int* data, unsigned int count);
     virtual ~IndexBuffer();
 
     void Bind() const;

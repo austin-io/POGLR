@@ -4,8 +4,9 @@
 
 class SuperCube {
     public:
+        SuperCube(){}
         SuperCube(const char* grid, const unsigned int& height, const unsigned int& depth, const unsigned int& MAX_SIZE);
-
+        void create(const char* grid, const unsigned int& height, const unsigned int& depth, const unsigned int& MAX_SIZE);
         ~SuperCube();
 
         inline const glm::vec3* getVert() const {return this->m_PosData;}

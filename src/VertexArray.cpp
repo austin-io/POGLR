@@ -2,15 +2,19 @@
 
 #include "Renderer.hpp"
 #include "VertexArray.hpp"
-#include "VertexBuffer.hpp"
-#include "VertexBufferLayout.hpp"
+//#include "VertexBuffer.hpp"
+//#include "VertexBufferLayout.hpp"
 
 VertexArray::VertexArray(){
-    GLCALL(glGenVertexArrays(1, &m_RendererID));
+    std::cout << __FILE__ << std::endl;
 }
 
 VertexArray::~VertexArray(){
     GLCALL(glDeleteVertexArrays(1, &m_RendererID));
+}
+
+void VertexArray::create(){
+    GLCALL(glGenVertexArrays(1, &m_RendererID));
 }
 
 void VertexArray::Bind() const {

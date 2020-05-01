@@ -1,11 +1,19 @@
-#include <pch.h>
+#include "pch.h"
 
 #include "Renderer.hpp"
 #include "IndexBuffer.hpp"
 
-IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count)
-: m_Count(count) {
-    
+IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count){
+    this->create(data, count);
+}
+
+IndexBuffer::~IndexBuffer(){
+    GLCALL(glDeleteBuffers(1, &m_RendererID));
+}
+
+void IndexBuffer::create(const unsigned int* data, unsigned int count){
+    this->m_Count = count;
+
     ASSERT(sizeof(unsigned int) == sizeof(GLuint));
     
     // Create a new buffer
@@ -15,22 +23,17 @@ IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count)
     GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID));
     
     // Populate the buffer with data (type, size, pointer, draw_type)
-    GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW));
-    GLCALL(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, count * sizeof(unsigned int), data));
+    GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), nullptr, GL_DYNAMIC_DRAW));
+    //GLCALL(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, count * sizeof(unsigned int), data));
     
     if(glIsBuffer(this->m_RendererID) != GL_TRUE) 
         std::cout << "[ ERROR ] - Index Buffer not generated\n";
     else std::cout << "Index Buffer successfully generated\n";
 }
 
-IndexBuffer::~IndexBuffer(){
-    GLCALL(glDeleteBuffers(1, &m_RendererID));
-}
-
 void IndexBuffer::setData(const unsigned int* data, const unsigned int& count){
     this->Bind();
-
-    GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW));
+    this->m_Count = count;
     GLCALL(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, count * sizeof(unsigned int), data));
 }
 
