@@ -1,5 +1,6 @@
 # Ignore ImGui dependencies
 main.old
+imgui.ini
 bin/out
 include/dep
 include/dep/*
