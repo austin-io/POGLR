@@ -49,9 +49,8 @@ Renderer::Renderer(const int& h, const int& w, const std::string& title){
     GLCALL(std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl);
     GLCALL(glEnable(GL_DEPTH_TEST));
     GLCALL(glEnable(GL_CULL_FACE));
-    
-    this->m_Vertices.reserve(this->MAXSIZE);
-    this->m_Indices.reserve(this->MAXSIZE * 3);
+
+    //GLCALL(glfwSetKeyCallback(win, this->onEvent));
 
     this->m_VertData = new glm::vec3[this->MAXSIZE];
     this->m_IndData  = new unsigned int[this->MAXSIZE * 3];
@@ -81,6 +80,7 @@ void Renderer::init(){
     //glfwSetKeyCallback(win, keyCallback);
 
     std::cout << "Init\n";
+
     this->onCreate();
     this->dTime = glfwGetTime();
     this->coreUpdate();
@@ -101,9 +101,19 @@ void Renderer::coreUpdate(){
     glm::vec3 scaler(0.3f);
     glm::vec3 uColor(1.f);
     glm::vec3 uLightDir(1.f);
-    float scaleFactor = 1;
+    float scaleFactor = 1.f;
+
+    // ImGUI initialization
+    ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForOpenGL(win, true);
+    ImGui_ImplOpenGL3_Init("#version 300 es");
+    ImGui::StyleColorsDark();
 
     while(!glfwWindowShouldClose(this->win)){
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
         float ratio;
         int width, height;
@@ -124,7 +134,6 @@ void Renderer::coreUpdate(){
         glm::mat4 MVP = proj * view * model;
         
         // Update color uniform
-        //GLCALL(glUniform4f(location, colorValue, 0.5f, 0.5f, 1.0f));
         this->shader.Bind();
         this->shader.setUniform4f("u_Color", uColor[0], uColor[1], uColor[2], 1.0f);
         this->shader.setUniform3f("u_LightDir", uLightDir);
@@ -136,11 +145,29 @@ void Renderer::coreUpdate(){
         this->dTime = glfwGetTime();
         this->flush();
 
+        {   // ImGui Debug window 
+            ImGui::Begin("Debug Window");
+            ImGui::Text("Position Sliders");
+            ImGui::SliderFloat3("Rotation XYZ", &trans[0], -180.f, 180.f);
+            ImGui::SliderFloat3("Color RGB", &uColor[0], 0.f, 1.f);
+            ImGui::SliderFloat3("Light Direction Vector XYZ", &uLightDir[0], -1.f, 1.f);
+            ImGui::SliderFloat("Scale", &scaleFactor, 0.f, 2.f);
+            ImGui::End();
+        }
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(this->win);
         glfwPollEvents();
         
         //glfwSetWindowShouldClose(win, GLFW_TRUE);
     }
+
+    // Clean up ImGui Instance
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     // GLCALL(glDeleteProgram(shaderProgram));
     glfwDestroyWindow(this->win);
@@ -148,14 +175,11 @@ void Renderer::coreUpdate(){
 
 }
 
-void Renderer::onCreate(){
-    //this->mesh.parseFile("./models/cube.obj");
-}
+void Renderer::onCreate(){}
 
-void Renderer::onUpdate(double dt){
-    //this->drawMesh(this->mesh);
-    //this->mesh.translate(glm::vec3(0.01f));
-}
+void Renderer::onUpdate(double dt){}
+
+//void Renderer::onEvent(GLFWwindow* win, int key, int scancode, int action, int mods){}
 
 void Renderer::clear() const {
     // Clear screen to grey
@@ -164,9 +188,12 @@ void Renderer::clear() const {
 }
 
 void Renderer::drawMesh(Mesh& mesh){
-    std::cout << "Draw\n";
-    if(mesh.getCount() + this->m_Count > this->MAXSIZE || mesh.getICount() + this->m_ICount > this->MAXSIZE * 3){
-        std::cout << "Flush early\n";
+    //std::cout << "Draw\n";
+
+    if(mesh.getCount() + this->m_Count > this->MAXSIZE || mesh.getICount() + this->m_ICount > this->MAXSIZE){
+        //std::cout << "[Flush early] - "
+        //          << "Count: "  << this->m_Count
+        //          << " | ICount: " << this->m_ICount << std::endl;
         this->flush();
     }
 
@@ -180,27 +207,17 @@ void Renderer::drawMesh(Mesh& mesh){
         this->m_IndData[this->m_ICount + i] = mesh.getInd()[i] + this->m_Count;
     }
 
+    // Update sizes
     this->m_Count  += mesh.getCount();
     this->m_ICount += mesh.getICount();
 }
 
 void Renderer::flush(){
-    std::cout << "Flush\n";
+    //std::cout << "Flush\n";
 
-/*
-    for(unsigned long i = 0; i < this->m_Count; i++){
-        for(char j = 0; j < 3; j++){
-            std::cout << this->m_VertData[i][j] << ", ";
-        }
-        std::cout << std::endl;
-    }
+    //std::cout << "Count: "  << this->m_Count  << std::endl;
+    //std::cout << "ICount: " << this->m_ICount << std::endl;
 
-    for(unsigned long i = 0; i < this->m_ICount; i++){
-        std::cout << this->m_IndData[i] << ", ";
-        
-        if(i%3 == 0) std::cout << std::endl;
-    }
-//*/
     this->va.Bind();
     this->vb.setData(this->m_VertData, this->m_Count * 3 * sizeof(float));
 
@@ -209,10 +226,6 @@ void Renderer::flush(){
 
     this->shader.Bind();
 
-    //std::cout << "Count: " << this->m_Count << std::endl;
-    //std::cout << "ICount: " << this->m_ICount << std::endl;
-    //std::cout << "ib.getCount: " << this->ib.getCount() << std::endl;
-
     // Draw everything batched together
     GLCALL(glDrawElements(GL_TRIANGLES, this->ib.getCount(), GL_UNSIGNED_INT, nullptr));
 
@@ -220,9 +233,6 @@ void Renderer::flush(){
     
     this->vb.setData(this->m_VertData, 0);
     this->ib.setData(this->m_IndData, 0);
-
-    this->m_Indices.clear();
-    this->m_Vertices.clear();
     
     this->m_Count  = 0;
     this->m_ICount = 0;

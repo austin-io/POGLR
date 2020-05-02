@@ -36,7 +36,7 @@ void Mesh::parseFile(const std::string& filePath){
             }
         }
         std::cout << filePath << " Vertex Count: " << this->m_Positions.size() << std::endl;
-        std::cout << filePath << " Index Count: " << this->m_Indices.size() / 3 << std::endl;
+        std::cout << filePath << " Index Count: " << this->m_Indices.size() << std::endl;
     }
 
     inFile.close();
@@ -61,7 +61,7 @@ void Mesh::loadData(const glm::vec3* posData, const unsigned int* indData, const
         delete[] this->m_PosData;
         delete[] this->m_IndData;
     }
-    
+
     this->m_PosData = new glm::vec3[count];
     this->m_IndData = new unsigned int[iCount];
 
@@ -78,10 +78,29 @@ void Mesh::loadData(const glm::vec3* posData, const unsigned int* indData, const
 
 void Mesh::translate(const glm::vec3& tran){
     for(unsigned int i = 0; i < this->getCount(); i++){
-        this->m_PosData[i] += tran;
+        this->m_PosData[i] = this->m_Positions[i] * this->m_Scale + tran;
     }
 }
 
 void Mesh::rotate(const glm::vec3& rot){
+    //for(unsigned int i = 0; i < this->getCount(); i++){        
+    //    this->m_PosData[i] = glm::rotate(this->m_PosData[i], glm::radians(rot[]), glm::vec3())
+    //    this->m_PosData[i] = glm::rotate(this->m_PosData[i], glm::radians(rot[]), glm::vec3())
+    //    this->m_PosData[i] = glm::rotate(this->m_PosData[i], glm::radians(rot[]), glm::vec3())
+    //}
+}
 
+void Mesh::scale(const float& s){
+    this->m_Scale = s;
+}
+
+void Mesh::randomize(const float& r){
+    for(unsigned int i = 0; i < this->getCount(); i++){
+        this->m_PosData[i] = (this->m_Positions[i] * this->m_Scale) 
+            + glm::vec3(
+                ((static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) - 0.5) * r,
+                ((static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) - 0.5) * r,
+                ((static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) - 0.5) * r
+                );
+    }
 }

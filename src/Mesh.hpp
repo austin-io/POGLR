@@ -19,10 +19,14 @@ class Mesh {
 
         void translate(const glm::vec3& tran);
         void rotate(const glm::vec3& rot);
+        void scale(const float& s);
+        void randomize(const float& r);
 
     protected:
         std::vector<glm::vec3> m_Positions;
         std::vector<unsigned int> m_Indices;
+
+        float m_Scale = 1.f;
         
         glm::vec3* m_PosData = nullptr;
         unsigned int* m_IndData = nullptr;

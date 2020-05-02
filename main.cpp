@@ -7,7 +7,15 @@
 #include "src/Renderer.hpp"
 #include "src/SuperCube.hpp"
 
-std::string newGrid(const std::string& grid, const SuperCube& sc);
+struct CubeGen{
+    unsigned int 
+        Height, 
+        Depth, 
+        MaxSize;
+    inline const unsigned int getIndex(const unsigned int& x, const unsigned int& y, const unsigned int& z) const {return z*this->Depth + y*this->Height + x;}
+};
+
+std::string newGrid(const std::string& grid, const CubeGen& cg);
 
 class App : public Renderer {
     public:
@@ -19,37 +27,60 @@ class App : public Renderer {
 
             std::cout << "Generating Grid\n";
 
-            const unsigned int GRID_SIZE = 4;
-            for(char i = 0; i < GRID_SIZE; i++){
-                for(char j = 0; j < GRID_SIZE; j++){
-                    grid += std::bitset<4>(std::rand() % 16).to_string();
-                    //grid += std::bitset<16>(std::rand() % 65536).to_string();
-                    //grid += std::bitset<24>(0).to_string();
+            for(char i = 0; i < CHUNK_SIZE; i++){
+                for(char j = 0; j < CHUNK_SIZE; j++){
+                    grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    
+                    grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    grid += std::bitset<16>(std::rand() % 65500).to_string();
                 }
             }
 
-            std::cout << "Finished Generating Grid:\nAttempting to make supercube\n";
-            // grid template, height, depth, MaxSize
-            sc.create(grid.c_str(), GRID_SIZE, GRID_SIZE*GRID_SIZE, GRID_SIZE);
+            this->cube.parseFile("./models/cube.obj");
+            this->m1.parseFile("./models/teapot.obj");
+            this->m1.scale(this->scale);
+            //this->m1.translate(glm::vec3(0));
 
-            std::cout << "SuperCube Generated\n";
-
-            scm.loadData(sc.getVert(), sc.getInd(), sc.getCount(), sc.getICount());
+            this->cube.scale(this->scale);
 
         }
 
         virtual void onUpdate(double dt) override {
-            this->drawMesh(scm);
-            //this->mesh.translate(glm::vec3(0.01f));
-            //glfwSetWindowShouldClose(win, GLFW_TRUE);
+            //drawCubes();
+            //this->grid = newGrid(this->grid, this->cg);
+            std::cout << "Delta time: " << dt << "s | " << dt * 1000 << "ms" << std::endl;
+            this->m1.randomize(0.01);
+            this->drawMesh(this->m1);
+            //glfwSetWindowShouldClose(this->win, GLFW_TRUE);
+        }
+
+        void drawCubes(){
+            for(unsigned int z = 0; z < cg.MaxSize; z++){
+                for(unsigned int y = 0; y < cg.MaxSize; y++){
+                    for(unsigned int x = 0; x < cg.MaxSize; x++){
+                        unsigned int idx = cg.getIndex(x,y,z);
+
+                        if(this->grid[idx] == '1'){
+                            this->cube.translate(glm::vec3(x,y,z) * this->scale);
+                            this->drawMesh(this->cube);
+                        }
+                    }
+                }
+            }
         }
 
     protected:
-        std::string grid = "";
-        SuperCube sc = SuperCube();
-        Mesh scm = Mesh();
+        const unsigned int CHUNK_SIZE = 32*4;
+        const float scale = 1.f;
 
-        //Mesh mesh1 = Mesh(), mesh2 = Mesh();
+        std::string grid = "";
+        CubeGen cg = {CHUNK_SIZE, CHUNK_SIZE*CHUNK_SIZE, CHUNK_SIZE};
+        Mesh cube = Mesh(), m1 = Mesh();
 };
 
 int main(int argc, char** argv){
@@ -63,7 +94,7 @@ int main(int argc, char** argv){
     app.init();
 }
 
-std::string newGrid(const std::string& grid, const SuperCube& sc){
+std::string newGrid(const std::string& grid, const CubeGen& cg){
 
     // Rules for Cellular Automata:
     // 1. Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
@@ -77,11 +108,11 @@ std::string newGrid(const std::string& grid, const SuperCube& sc){
     std::string out = grid;
     unsigned int idx;
 
-    for(unsigned int z = 0; z < sc.getMaxSize(); z++)
-    for(unsigned int y = 0; y < sc.getMaxSize(); y++)
-    for(unsigned int x = 0; x < sc.getMaxSize(); x++){
+    for(unsigned int z = 0; z < cg.MaxSize; z++)
+    for(unsigned int y = 0; y < cg.MaxSize; y++)
+    for(unsigned int x = 0; x < cg.MaxSize; x++){
         // index of current cell
-        idx = sc.getIndex(x,y,z);
+        idx = cg.getIndex(x,y,z);
         int neighbors = 0;
 
         // Get neighbors
@@ -90,10 +121,10 @@ std::string newGrid(const std::string& grid, const SuperCube& sc){
         //std::cout << "ID: " << idx << " || Neighbor IDs: \n";
 
         // Scan through all neighbors
-        for(nz = z - 1 >= 0 ? z - 1 : z; nz < z + 2 && nz < sc.getMaxSize(); nz++)
-        for(ny = y - 1 >= 0 ? y - 1 : y; ny < y + 2 && ny < sc.getMaxSize(); ny++)
-        for(nx = x - 1 >= 0 ? x - 1 : x; nx < x + 2 && nx < sc.getMaxSize(); nx++){
-            nIdx = sc.getIndex(nx, ny, nz);
+        for(nz = z - 1 >= 0 ? z - 1 : z; nz < z + 2 && nz < cg.MaxSize; nz++)
+        for(ny = y - 1 >= 0 ? y - 1 : y; ny < y + 2 && ny < cg.MaxSize; ny++)
+        for(nx = x - 1 >= 0 ? x - 1 : x; nx < x + 2 && nx < cg.MaxSize; nx++){
+            nIdx = cg.getIndex(nx, ny, nz);
             //std::cout << nIdx << ", ";
             if(nIdx != idx && grid[nIdx] == '1') neighbors++;
         }

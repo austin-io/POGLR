@@ -36,27 +36,25 @@ class Renderer {
 
         virtual void onCreate();
         virtual void onUpdate(double);
+        //virtual void onEvent(GLFWwindow* win, int key, int scancode, int action, int mods);
 
     protected:
         // Main window provided by GLFW (not created yet)
         GLFWwindow* win;
 
-        const unsigned long MAXSIZE = 10000;
+        const unsigned long MAXSIZE = 1000000;
         unsigned long m_Count, m_ICount;
-
-        std::vector<glm::vec3> m_Vertices;
-        std::vector<unsigned int> m_Indices;
 
         glm::vec3* m_VertData;
         unsigned int* m_IndData;
 
         double dTime;
 
-        //Mesh mesh = Mesh(); //("./models/cube.obj");
-        VertexBuffer vb = VertexBuffer(); //(this->m_VertData, this->MAXSIZE * 3 * sizeof(float));
+        //Mesh mesh = Mesh(); 
+        VertexBuffer vb = VertexBuffer();
         VertexBufferLayout vbl = VertexBufferLayout();
         VertexArray va = VertexArray();
-        IndexBuffer ib = IndexBuffer(); //(this->m_IndData, this->MAXSIZE * 3);
-        Shader shader = Shader();//("res/shaders/base.shader");
-        
+        IndexBuffer ib = IndexBuffer(); 
+        Shader shader = Shader();
+
 };
