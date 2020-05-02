@@ -59,6 +59,7 @@ Renderer::Renderer(const int& h, const int& w, const std::string& title){
 
     this->vb.create(this->m_VertData, this->MAXSIZE * 3 * sizeof(float));
     this->vbl.Push<float>(3);
+    this->vbl.Push<float>(3);
 
     this->va.create();
     this->va.addBuffer(this->vb, this->vbl);
@@ -204,7 +205,7 @@ void Renderer::drawMesh(Mesh& mesh){
     }
 
     for(unsigned long i = 0; i < mesh.getICount(); i++){
-        this->m_IndData[this->m_ICount + i] = mesh.getInd()[i] + this->m_Count;
+        this->m_IndData[this->m_ICount + i] = mesh.getInd()[i] + this->m_Count / 2;
     }
 
     // Update sizes

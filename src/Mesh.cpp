@@ -1,4 +1,5 @@
 #include "Mesh.hpp"
+#include "Renderer.hpp"
 
 Mesh::Mesh(const std::string& filePath){
     this->parseFile(filePath);
@@ -28,6 +29,7 @@ void Mesh::parseFile(const std::string& filePath){
             if(line.find("v ") != std::string::npos){
                 ss >> tmp >> data[0] >> data[1] >> data[2];
                 this->m_Positions.push_back(data);
+                this->m_Positions.push_back(this->m_Color);
             } else if(line.find("f ") != std::string::npos) {
                 ss >> tmp >> index[0] >> index[1] >> index[2];
                 this->m_Indices.push_back(index[0] - 1);
@@ -77,30 +79,45 @@ void Mesh::loadData(const glm::vec3* posData, const unsigned int* indData, const
 }
 
 void Mesh::translate(const glm::vec3& tran){
-    for(unsigned int i = 0; i < this->getCount(); i++){
-        this->m_PosData[i] = this->m_Positions[i] * this->m_Scale + tran;
+    this->m_Pos = tran;
+    for(unsigned int i = 0; i < this->getCount(); i+=2){
+        this->m_PosData[i] = glm::vec3(glm::vec4(this->m_Positions[i] * this->m_Scale, 1) * this->m_Rotation)  + this->m_Pos;
     }
 }
 
 void Mesh::rotate(const glm::vec3& rot){
-    //for(unsigned int i = 0; i < this->getCount(); i++){        
-    //    this->m_PosData[i] = glm::rotate(this->m_PosData[i], glm::radians(rot[]), glm::vec3())
-    //    this->m_PosData[i] = glm::rotate(this->m_PosData[i], glm::radians(rot[]), glm::vec3())
-    //    this->m_PosData[i] = glm::rotate(this->m_PosData[i], glm::radians(rot[]), glm::vec3())
-    //}
+    
+    this->m_Rotation = glm::mat4(1);
+    this->m_Rotation = glm::rotate(this->m_Rotation, glm::radians(rot[0]), glm::vec3(1.f, 0.f, 0.f));
+    this->m_Rotation = glm::rotate(this->m_Rotation, glm::radians(rot[1]), glm::vec3(0.f, 1.f, 0.f));
+    this->m_Rotation = glm::rotate(this->m_Rotation, glm::radians(rot[2]), glm::vec3(0.f, 0.f, 1.f));
+
+    for(unsigned int i = 0; i < this->getCount(); i+=2){
+        this->m_PosData[i] = glm::vec3(glm::vec4(this->m_Positions[i] * this->m_Scale, 1) * this->m_Rotation)  + this->m_Pos;
+    }
+}
+
+void Mesh::color(const glm::vec3& col){
+    this->m_Color = col;
+    for(unsigned int i = 1; i < this->getCount(); i+=2){
+        this->m_PosData[i] = col;
+    }
 }
 
 void Mesh::scale(const float& s){
     this->m_Scale = s;
+    for(unsigned int i = 0; i < this->getCount(); i+=2){
+        this->m_PosData[i] = glm::vec3(glm::vec4(this->m_Positions[i] * this->m_Scale, 1) * this->m_Rotation)  + this->m_Pos;
+    }
 }
 
 void Mesh::randomize(const float& r){
-    for(unsigned int i = 0; i < this->getCount(); i++){
-        this->m_PosData[i] = (this->m_Positions[i] * this->m_Scale) 
+    for(unsigned int i = 0; i < this->getCount(); i+=2){
+        this->m_PosData[i] = glm::vec3(glm::vec4(this->m_Positions[i] * this->m_Scale, 1) * this->m_Rotation)  + this->m_Pos
             + glm::vec3(
-                ((static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) - 0.5) * r,
-                ((static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) - 0.5) * r,
-                ((static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) - 0.5) * r
+                (Renderer::fRand() - 0.5) * r,
+                (Renderer::fRand() - 0.5) * r,
+                (Renderer::fRand() - 0.5) * r
                 );
     }
 }

@@ -34,6 +34,8 @@ class Renderer {
         void flush();
         void clear() const;
 
+        inline static const double fRand() {return (static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX));}
+
         virtual void onCreate();
         virtual void onUpdate(double);
         //virtual void onEvent(GLFWwindow* win, int key, int scancode, int action, int mods);

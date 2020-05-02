@@ -42,20 +42,41 @@ class App : public Renderer {
             }
 
             this->cube.parseFile("./models/cube.obj");
-            this->m1.parseFile("./models/teapot.obj");
-            this->m1.scale(this->scale);
+            //this->m1.parseFile("./models/teapot.obj");
+            //this->m1.scale(this->scale);
+            //this->m1.color(glm::vec3(1,0,0));
             //this->m1.translate(glm::vec3(0));
 
-            this->cube.scale(this->scale);
+            //this->cube.scale(this->scale);
 
         }
 
         virtual void onUpdate(double dt) override {
+            
+            //std::cout << "Delta time: " << dt << "s | " << dt * 1000 << "ms" << std::endl;
+            
+            // Draw Red cube
+            //this->cube.scale(1 + (App::fRand() - 0.5) * 0.5);
+            this->cube.rotate(glm::vec3(0));
+            this->cube.color(glm::vec3(1,0.2,0.2));
+            this->cube.translate(glm::vec3(1,0,0));
+            this->drawMesh(this->cube);
+
+            // Draw Blue cube
+            //this->cube.scale(1);
+            this->cube.rotate(glm::vec3(90*std::sin(5 * counter)));
+            this->cube.color(glm::vec3(0,0.5,1));
+            this->cube.translate(glm::vec3(-2, 0,0));
+            //this->cube.translate(glm::vec3(-1, std::sin(5 * counter), std::cos(5 * counter)));
+            //this->cube.randomize(0.05);
+            this->drawMesh(this->cube);
+
+            counter += dt;
+
+            //this->drawMesh(this->m1);
             //drawCubes();
             //this->grid = newGrid(this->grid, this->cg);
-            std::cout << "Delta time: " << dt << "s | " << dt * 1000 << "ms" << std::endl;
-            this->m1.randomize(0.01);
-            this->drawMesh(this->m1);
+            //this->m1.randomize(0.01);
             //glfwSetWindowShouldClose(this->win, GLFW_TRUE);
         }
 
@@ -77,6 +98,8 @@ class App : public Renderer {
     protected:
         const unsigned int CHUNK_SIZE = 32*4;
         const float scale = 1.f;
+
+        double counter = 0;
 
         std::string grid = "";
         CubeGen cg = {CHUNK_SIZE, CHUNK_SIZE*CHUNK_SIZE, CHUNK_SIZE};
