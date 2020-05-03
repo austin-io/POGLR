@@ -193,7 +193,7 @@ void Renderer::clear() const {
 void Renderer::drawMesh(Mesh& mesh){
     //std::cout << "Draw\n";
 
-    if(mesh.getCount() + this->m_Count > this->MAXSIZE || mesh.getICount() + this->m_ICount > this->MAXSIZE * 3){
+    if(mesh.getCount() + this->m_Count > this->MAXSIZE || mesh.getICount() + this->m_ICount > this->MAXSIZE){
         //std::cout << "[Flush early] - "
         //          << "Count: "  << this->m_Count
         //          << " | ICount: " << this->m_ICount << std::endl;

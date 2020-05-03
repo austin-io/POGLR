@@ -96,7 +96,7 @@ void Mesh::rotate(const glm::vec3& rot){
 
 void Mesh::color(const glm::vec3& col){
     this->m_Color = col;
-    for(unsigned int i = 1; i < this->getCount(); i++){
+    for(unsigned int i = 0; i < this->getCount(); i++){
         this->m_VertData[i].color = col;
     }
 }

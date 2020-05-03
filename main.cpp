@@ -8,8 +8,8 @@
 
 struct CubeGen{
     unsigned int 
-        Height, 
-        Depth, 
+        Height,
+        Depth,
         MaxSize;
     inline const unsigned int getIndex(const unsigned int& x, const unsigned int& y, const unsigned int& z) const {return z*this->Depth + y*this->Height + x;}
 };
@@ -30,19 +30,20 @@ class App : public Renderer {
                 for(char j = 0; j < CHUNK_SIZE; j++){
                     grid += std::bitset<16>(std::rand() % 65500).to_string();
                     grid += std::bitset<16>(std::rand() % 65500).to_string();
+
                     grid += std::bitset<16>(std::rand() % 65500).to_string();
                     grid += std::bitset<16>(std::rand() % 65500).to_string();
-                    
-                    grid += std::bitset<16>(std::rand() % 65500).to_string();
-                    grid += std::bitset<16>(std::rand() % 65500).to_string();
-                    grid += std::bitset<16>(std::rand() % 65500).to_string();
-                    grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
                 }
             }
 
-            this->cube.parseFile("./models/teapot.obj");
+            this->cube.parseFile("./models/cube.obj");
 
-            this->cube.scale(this->scale);
+            //this->cube.scale(this->scale);
+            this->cube.scale(0.5);
 
         }
 
@@ -59,6 +60,7 @@ class App : public Renderer {
             this->cube.translate(glm::vec3(1,0,0));
             this->drawMesh(this->cube);
 
+            //*
             // Draw Blue cube
             //this->cube.scale(1);
             this->cube.rotate(glm::vec3(90*std::sin(5 * counter), 0, 0));
@@ -94,8 +96,8 @@ class App : public Renderer {
         }
 
     protected:
-        const unsigned int CHUNK_SIZE = 128;
-        const float scale = 0.5f;
+        const unsigned int CHUNK_SIZE = 64;
+        const float scale = 0.1f;
 
         double counter = 0;
 
