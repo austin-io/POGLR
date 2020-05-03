@@ -5,7 +5,6 @@
 
 // OpenGL Rendering abstraction
 #include "src/Renderer.hpp"
-#include "src/SuperCube.hpp"
 
 struct CubeGen{
     unsigned int 

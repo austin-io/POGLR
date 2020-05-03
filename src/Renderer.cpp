@@ -52,12 +52,12 @@ Renderer::Renderer(const int& h, const int& w, const std::string& title){
 
     //GLCALL(glfwSetKeyCallback(win, this->onEvent));
 
-    this->m_VertData = new glm::vec3[this->MAXSIZE];
+    this->m_VertData = new Vertex[this->MAXSIZE];
     this->m_IndData  = new unsigned int[this->MAXSIZE * 3];
     this->m_Count = 0;
     this->m_ICount = 0;
 
-    this->vb.create(this->m_VertData, this->MAXSIZE * 3 * sizeof(float));
+    this->vb.create(this->m_VertData, this->MAXSIZE * sizeof(Vertex));
     this->vbl.Push<float>(3);
     this->vbl.Push<float>(3);
 
@@ -98,10 +98,12 @@ void Renderer::coreUpdate(){
 
     glm::mat4 proj = glm::perspective(glm::radians(60.f), 640.f/640.f, 0.01f, 100.f);
     glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -3.f));
+
     glm::vec3 trans(30.f, -45.f, 0.f);
     glm::vec3 scaler(0.3f);
     glm::vec3 uColor(1.f);
     glm::vec3 uLightDir(1.f);
+    
     float scaleFactor = 1.f;
 
     // ImGUI initialization
@@ -191,7 +193,7 @@ void Renderer::clear() const {
 void Renderer::drawMesh(Mesh& mesh){
     //std::cout << "Draw\n";
 
-    if(mesh.getCount() + this->m_Count > this->MAXSIZE || mesh.getICount() + this->m_ICount > this->MAXSIZE){
+    if(mesh.getCount() + this->m_Count > this->MAXSIZE || mesh.getICount() + this->m_ICount > this->MAXSIZE * 3){
         //std::cout << "[Flush early] - "
         //          << "Count: "  << this->m_Count
         //          << " | ICount: " << this->m_ICount << std::endl;
@@ -205,7 +207,7 @@ void Renderer::drawMesh(Mesh& mesh){
     }
 
     for(unsigned long i = 0; i < mesh.getICount(); i++){
-        this->m_IndData[this->m_ICount + i] = mesh.getInd()[i] + this->m_Count / 2;
+        this->m_IndData[this->m_ICount + i] = mesh.getInd()[i] + this->m_Count;
     }
 
     // Update sizes
@@ -220,7 +222,7 @@ void Renderer::flush(){
     //std::cout << "ICount: " << this->m_ICount << std::endl;
 
     this->va.Bind();
-    this->vb.setData(this->m_VertData, this->m_Count * 3 * sizeof(float));
+    this->vb.setData(this->m_VertData, this->m_Count * sizeof(Vertex));
 
     this->ib.Bind();
     this->ib.setData(this->m_IndData, this->m_ICount);

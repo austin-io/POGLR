@@ -21,6 +21,7 @@ bool GLLogCall(const char*, const char*, int);
 #include "VertexBuffer.hpp"
 #include "VertexBufferLayout.hpp"
 #include "VertexArray.hpp"
+#include "Vertex.hpp"
 #include "Mesh.hpp"
 
 class Renderer {
@@ -47,7 +48,7 @@ class Renderer {
         const unsigned long MAXSIZE = 1000000;
         unsigned long m_Count, m_ICount;
 
-        glm::vec3* m_VertData;
+        Vertex* m_VertData;
         unsigned int* m_IndData;
 
         double dTime;
