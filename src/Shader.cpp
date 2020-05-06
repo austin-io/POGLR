@@ -47,6 +47,10 @@ void Shader::setUniform3f(const std::string& name, const glm::vec3& u_Vec){
     GLCALL(glUniform3f(this->getUniformLocations(name), u_Vec[0], u_Vec[1], u_Vec[2]));
 }
 
+void Shader::setUniform2f(const std::string& name, const glm::vec2& u_Vec){
+    GLCALL(glUniform2f(this->getUniformLocations(name), u_Vec[0], u_Vec[1]));
+}
+
 void Shader::setUniformMat4f(const std::string& name, const glm::mat4& matrix){
     GLCALL(glUniformMatrix4fv(this->getUniformLocations(name), 1, GL_FALSE, &matrix[0][0]));
 }

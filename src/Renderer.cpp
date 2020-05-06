@@ -96,7 +96,6 @@ void Renderer::coreUpdate(){
     // View: The Camera
     // Projection: The conversion of 3D to 2D coordinates 
 
-    glm::mat4 proj = glm::perspective(glm::radians(60.f), 640.f/640.f, 0.01f, 100.f);
     glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -3.f));
 
     glm::vec3 trans(30.f, -45.f, 0.f);
@@ -118,10 +117,10 @@ void Renderer::coreUpdate(){
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        float ratio;
         int width, height;
         glfwGetFramebufferSize(this->win, &width, &height);
-        ratio = width/(float)height;
+
+        glm::mat4 proj = glm::perspective(glm::radians(60.f), (float)width/height, 0.01f, 100.f);
 
         // How much of the window is seen
         GLCALL(glViewport(0, 0, width, height));
@@ -140,6 +139,7 @@ void Renderer::coreUpdate(){
         this->shader.Bind();
         this->shader.setUniform4f("u_Color", uColor[0], uColor[1], uColor[2], 1.0f);
         this->shader.setUniform3f("u_LightDir", uLightDir);
+        
         this->shader.setUniformMat4f("u_MVP", MVP);
         this->shader.setUniformMat4f("u_Model", model);
         this->shader.setUniformMat4f("u_View", view);
