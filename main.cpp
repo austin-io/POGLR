@@ -40,7 +40,7 @@ class App : public Renderer {
                 }
             }
 
-            this->cube.parseFile("./models/cube.obj");
+            this->cube.parseFile("./models/teapot.obj");
 
             //this->cube.scale(this->scale);
             this->cube.scale(0.5);

@@ -111,6 +111,8 @@ void Renderer::coreUpdate(){
     ImGui_ImplOpenGL3_Init("#version 300 es");
     ImGui::StyleColorsDark();
 
+    double lastTime = this->dTime;
+
     while(!glfwWindowShouldClose(this->win)){
 
         ImGui_ImplOpenGL3_NewFrame();
@@ -144,8 +146,11 @@ void Renderer::coreUpdate(){
         this->shader.setUniformMat4f("u_Model", model);
         this->shader.setUniformMat4f("u_View", view);
 
-        this->onUpdate(glfwGetTime() - this->dTime);
+        lastTime = glfwGetTime() - this->dTime;
         this->dTime = glfwGetTime();
+        
+        this->onUpdate(lastTime);
+        
         this->flush();
 
         {   // ImGui Debug window 
