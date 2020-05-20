@@ -77,9 +77,17 @@ void Mesh::loadData(const Vertex* vertData, const unsigned int* indData, const u
 
 void Mesh::translate(const glm::vec3& tran){
     this->m_Pos = tran;
-    for(unsigned int i = 0; i < this->getCount(); i++){
-        this->m_VertData[i].position = glm::vec3(glm::vec4(this->m_Vertices[i].position * this->m_Scale, 1) * this->m_Rotation)  + this->m_Pos;
-    }
+    
+    std::thread t1(&Mesh::translateTSP, this, tran, 0, this->getCount()/4);
+    std::thread t2(&Mesh::translateTSP, this, tran, this->getCount()/4, this->getCount()/2);
+    std::thread t3(&Mesh::translateTSP, this, tran, this->getCount()/2, 3 * this->getCount()/4);
+    std::thread t4(&Mesh::translateTSP, this, tran, 3 * this->getCount()/4, this->getCount());
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
 }
 
 void Mesh::rotate(const glm::vec3& rot){
@@ -89,27 +97,83 @@ void Mesh::rotate(const glm::vec3& rot){
     this->m_Rotation = glm::rotate(this->m_Rotation, glm::radians(rot[1]), glm::vec3(0.f, 1.f, 0.f));
     this->m_Rotation = glm::rotate(this->m_Rotation, glm::radians(rot[2]), glm::vec3(0.f, 0.f, 1.f));
 
-    for(unsigned int i = 0; i < this->getCount(); i++){
-        this->m_VertData[i].position = glm::vec3(glm::vec4(this->m_Vertices[i].position * this->m_Scale, 1) * this->m_Rotation)  + this->m_Pos;
-    }
+    std::thread t1(&Mesh::rotateTSP, this, 0, this->getCount()/4);
+    std::thread t2(&Mesh::rotateTSP, this, this->getCount()/4, this->getCount()/2);
+    std::thread t3(&Mesh::rotateTSP, this, this->getCount()/2, 3 * this->getCount()/4);
+    std::thread t4(&Mesh::rotateTSP, this, 3 * this->getCount()/4, this->getCount());
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
 }
 
 void Mesh::color(const glm::vec3& col){
     this->m_Color = col;
-    for(unsigned int i = 0; i < this->getCount(); i++){
-        this->m_VertData[i].color = col;
-    }
+
+    std::thread t1(&Mesh::colorTSP, this, 0, this->getCount()/4);
+    std::thread t2(&Mesh::colorTSP, this, this->getCount()/4, this->getCount()/2);
+    std::thread t3(&Mesh::colorTSP, this, this->getCount()/2, 3 * this->getCount()/4);
+    std::thread t4(&Mesh::colorTSP, this, 3 * this->getCount()/4, this->getCount());
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
 }
 
 void Mesh::scale(const float& s){
     this->m_Scale = s;
-    for(unsigned int i = 0; i < this->getCount(); i++){
+    
+    std::thread t1(&Mesh::scaleTSP, this, 0, this->getCount()/4);
+    std::thread t2(&Mesh::scaleTSP, this, this->getCount()/4, this->getCount()/2);
+    std::thread t3(&Mesh::scaleTSP, this, this->getCount()/2, 3 * this->getCount()/4);
+    std::thread t4(&Mesh::scaleTSP, this, 3 * this->getCount()/4, this->getCount());
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+}
+
+void Mesh::randomize(const float& r){
+    std::thread t1(&Mesh::randomizeTSP, this, r, 0, this->getCount()/4);
+    std::thread t2(&Mesh::randomizeTSP, this, r, this->getCount()/4, this->getCount()/2);
+    std::thread t3(&Mesh::randomizeTSP, this, r, this->getCount()/2, 3 * this->getCount()/4);
+    std::thread t4(&Mesh::randomizeTSP, this, r, 3 * this->getCount()/4, this->getCount());
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+}
+
+void Mesh::translateTSP(const glm::vec3& tran, const unsigned int& beginInd, const unsigned int& endInd){
+    for(unsigned int i = beginInd; i < endInd; i++){
         this->m_VertData[i].position = glm::vec3(glm::vec4(this->m_Vertices[i].position * this->m_Scale, 1) * this->m_Rotation)  + this->m_Pos;
     }
 }
 
-void Mesh::randomize(const float& r){
-    for(unsigned int i = 0; i < this->getCount(); i++){
+void Mesh::rotateTSP(const unsigned int& beginInd, const unsigned int& endInd){
+    for(unsigned int i = beginInd; i < endInd; i++){
+        this->m_VertData[i].position = glm::vec3(glm::vec4(this->m_Vertices[i].position * this->m_Scale, 1) * this->m_Rotation)  + this->m_Pos;
+    }
+}
+
+void Mesh::colorTSP(const unsigned int& beginInd, const unsigned int& endInd){
+    for(unsigned int i = beginInd; i < endInd; i++){
+        this->m_VertData[i].color = this->m_Color;
+    }
+}
+
+void Mesh::scaleTSP(const unsigned int& beginInd, const unsigned int& endInd){
+    for(unsigned int i = beginInd; i < endInd; i++){
+        this->m_VertData[i].position = glm::vec3(glm::vec4(this->m_Vertices[i].position * this->m_Scale, 1) * this->m_Rotation)  + this->m_Pos;
+    }
+}
+
+void Mesh::randomizeTSP(const float& r, const unsigned int& beginInd, const unsigned int& endInd){
+    for(unsigned int i = beginInd; i < endInd; i++){
         this->m_VertData[i].position = glm::vec3(glm::vec4(this->m_Vertices[i].position * this->m_Scale, 1) * this->m_Rotation)  + this->m_Pos
             + glm::vec3(
                 (Renderer::fRand() - 0.5) * r,

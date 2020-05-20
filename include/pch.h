@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <functional>
+#include <thread>
 
 // OpenGL Graphics Library
 #include <GL/glew.h>

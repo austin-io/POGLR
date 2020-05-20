@@ -26,6 +26,14 @@ class Mesh {
         void randomize(const float& r);
 
     protected:
+        // Threaded Subprocesses
+        void translateTSP(const glm::vec3& tran, const unsigned int& beginInd, const unsigned int& endInd);
+        void rotateTSP(const unsigned int& beginInd, const unsigned int& endInd);
+        void colorTSP(const unsigned int& beginInd, const unsigned int& endInd);
+        void scaleTSP(const unsigned int& beginInd, const unsigned int& endInd);
+        void randomizeTSP(const float& r, const unsigned int& beginInd, const unsigned int& endInd);
+
+    protected:
         std::vector<Vertex> m_Vertices;
         std::vector<unsigned int> m_Indices;
 
