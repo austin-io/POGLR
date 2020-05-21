@@ -31,8 +31,8 @@ class App : public Renderer {
                     grid += std::bitset<16>(std::rand() % 65500).to_string();
                     grid += std::bitset<16>(std::rand() % 65500).to_string();
 
-                    grid += std::bitset<16>(std::rand() % 65500).to_string();
-                    grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
                     //grid += std::bitset<16>(std::rand() % 65500).to_string();
                     //grid += std::bitset<16>(std::rand() % 65500).to_string();
                     //grid += std::bitset<16>(std::rand() % 65500).to_string();
@@ -41,9 +41,10 @@ class App : public Renderer {
             }
 
             this->cube.parseFile("./models/teapot.obj");
+            //this->cube.parseFile("./models/cube.obj");
 
             //this->cube.scale(this->scale);
-            this->cube.scale(0.5);
+            this->cube.scale(this->teapotScale);
 
         }
 
@@ -76,6 +77,8 @@ class App : public Renderer {
             drawCubes();
             //*/
 
+            //std::cout << this->grid << std::endl;
+
             //glfwSetWindowShouldClose(this->win, GLFW_TRUE);
         }
 
@@ -96,8 +99,8 @@ class App : public Renderer {
         }
 
     protected:
-        const unsigned int CHUNK_SIZE = 64;
-        const float scale = 0.1f;
+        const unsigned int CHUNK_SIZE = 32;
+        const float scale = 0.05f, teapotScale = 0.5f;
 
         double counter = 0;
 
