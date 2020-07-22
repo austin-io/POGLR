@@ -1,8 +1,3 @@
-/*
- * Learning OpenGL 
- * Experimental program following TheCherno tutorial series
- * */
-
 // Precompiled headers for faster compilation
 #include "pch.h"
 
@@ -10,383 +5,181 @@
 
 // OpenGL Rendering abstraction
 #include "src/Renderer.hpp"
-#include "src/VertexBuffer.hpp"
-#include "src/VertexBufferLayout.hpp"
-#include "src/IndexBuffer.hpp"
-#include "src/Shader.hpp"
-#include "src/VertexArray.hpp"
-#include "src/Mesh.hpp"
 
-/*
-struct ShaderSources{
-    std::string vertexShader;
-    std::string fragShader;
+struct CubeGen{
+    unsigned int 
+        Height,
+        Depth,
+        MaxSize;
+    inline const unsigned int getIndex(const unsigned int& x, const unsigned int& y, const unsigned int& z) const {return z*this->Depth + y*this->Height + x;}
 };
 
-enum ShaderType {
-    NONE = -1, VERTEX = 0, FRAGMENT = 1
+std::string newGrid(const std::string& grid, const CubeGen& cg);
+
+class App : public Renderer {
+    public:
+        App(const int& h, const int& w, const std::string& title)
+        : Renderer(h,w,title) {}
+        virtual ~App(){}
+
+        virtual void onCreate() override {
+
+            std::cout << "Generating Grid\n";
+
+            for(char i = 0; i < CHUNK_SIZE; i++){
+                for(char j = 0; j < CHUNK_SIZE; j++){
+                    grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    grid += std::bitset<16>(std::rand() % 65500).to_string();
+
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
+                    //grid += std::bitset<16>(std::rand() % 65500).to_string();
+                }
+            }
+
+            this->cube.parseFile("./models/teapot.obj");
+            //this->cube.parseFile("./models/cube.obj");
+
+            //this->cube.scale(this->scale);
+            this->cube.scale(this->teapotScale);
+
+        }
+
+        virtual void onUpdate(double dt) override {
+            
+            //std::cout << "Delta time: " << dt << "s | " << dt * 1000 << "ms" << std::endl;
+            
+            //* Spinny cubes
+            // Draw Red cube
+            //this->cube.scale(1 + App::fRand() * 0.5);
+            //this->cube.scale(1);
+            this->cube.rotate(glm::vec3(0));
+            this->cube.color(glm::vec3(1,0.2,0.2));
+            this->cube.translate(glm::vec3(1,0,0));
+            this->drawMesh(this->cube);
+
+            //*
+            // Draw Blue cube
+            //this->cube.scale(1);
+            this->cube.rotate(glm::vec3(90*std::sin(5 * counter), 0, 0));
+            this->cube.color(glm::vec3(0,0.5,1));
+            this->cube.translate(glm::vec3(-2, 0,0));
+            //this->cube.translate(glm::vec3(-1, std::sin(5 * counter), std::cos(5 * counter)));
+            this->drawMesh(this->cube);
+            //*/
+
+            counter += dt;
+
+            /*// Cellular Automata
+            drawCubes();
+            //*/
+
+            //std::cout << this->grid << std::endl;
+
+            //glfwSetWindowShouldClose(this->win, GLFW_TRUE);
+        }
+
+        void drawCubes(){
+            for(unsigned int z = 0; z < cg.MaxSize; z++){
+                for(unsigned int y = 0; y < cg.MaxSize; y++){
+                    for(unsigned int x = 0; x < cg.MaxSize; x++){
+                        unsigned int idx = cg.getIndex(x,y,z);
+
+                        if(this->grid[idx] == '1'){
+                            this->cube.translate(glm::vec3(x,y,z) * this->scale);
+                            this->drawMesh(this->cube);
+                        }
+                    }
+                }
+            }
+            this->grid = newGrid(this->grid, this->cg);
+        }
+
+    protected:
+        const unsigned int CHUNK_SIZE = 32;
+        const float scale = 0.05f, teapotScale = 0.5f;
+
+        double counter = 0;
+
+        std::string grid = "";
+        CubeGen cg = {CHUNK_SIZE, CHUNK_SIZE*CHUNK_SIZE, CHUNK_SIZE};
+        Mesh cube = Mesh(), m1 = Mesh();
 };
-*/
-
-// Function called when event happens
-void keyCallback(GLFWwindow* win, int key, int scancode, int action, int mods);
-
-//static ShaderSources parseShader(const std::string& filepath);
-//static unsigned int compileShader(const std::string& source, unsigned int type);
-//static unsigned int createShader(const std::string& vertexShader, const std::string& fragShader);
 
 int main(int argc, char** argv){
     
-    // Main window provided by GLFW (not created yet)
-    GLFWwindow* win;
+    std::srand(std::time(0));
 
-    // Checks if GLFW was initialized
-    if(!glfwInit()) exit(-1);
+    std::cout << "Main\n";
     
-    // Actually create the window (width, height, title, resizable, idk)
-    win = glfwCreateWindow(640, 640, "It works!", NULL, NULL);
-    if(!win){
-        glfwTerminate();
-        std::exit(-1);
-    }
+    App app = App(800, 800, "Batching test");
 
-    // Select the window
-    glfwMakeContextCurrent(win);
+    app.init();
+}
+
+std::string newGrid(const std::string& grid, const CubeGen& cg){
+
+    // Rules for Cellular Automata:
+    // 1. Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
+    // 2. Any live cell with two or three live neighbours lives on to the next generation.
+    // 3. Any live cell with more than three live neighbours dies, as if by overpopulation.
+    // 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
     
-    // Match the framerate to the monitor refresh rate
-    glfwSwapInterval(1);
-    
-    // Remeber to initialize glew AFTER selecting the context
-    if(glewInit() != GLEW_OK){
-        std::cout << "Error!\n";
-        std::exit(-1);
-    }
+    // '0' is dead, '1' is alive
+    // There are 6 neighbors in 3D
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    std::string out = grid;
+    unsigned int idx;
 
-    GLCALL(std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl);
-    GLCALL(glEnable(GL_DEPTH_TEST));
-    GLCALL(glEnable(GL_CULL_FACE));
-    /*
-    // Vertices temp data
-    float positions[] = {
-        -0.5f, -0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
-    }; // count = 8 * 3 = 24
-    */
+    for(unsigned int z = 0; z < cg.MaxSize; z++)
+    for(unsigned int y = 0; y < cg.MaxSize; y++)
+    for(unsigned int x = 0; x < cg.MaxSize; x++){
+        // index of current cell
+        idx = cg.getIndex(x,y,z);
+        int neighbors = 0;
 
-    std::array<glm::vec3, 8> positions = {
-        glm::vec3( -0.5f, -0.5f, -0.5f),
-        glm::vec3(-0.5f,  0.5f, -0.5f),
-        glm::vec3(0.5f, -0.5f, -0.5f),
-        glm::vec3(0.5f,  0.5f, -0.5f),
-        glm::vec3(-0.5f, -0.5f,  0.5f),
-        glm::vec3(-0.5f,  0.5f,  0.5f),
-        glm::vec3(0.5f, -0.5f,  0.5f),
-        glm::vec3(0.5f,  0.5f,  0.5f)
-    };
-    
-    // Index buffer positions
-    unsigned int indices[] = {
-        0,1,2,
-        1,3,2,
-        1,5,3,
-        5,7,3,
-        2,3,6,
-        3,7,6,
-        0,2,6,
-        0,6,4,
-        4,5,1,
-        4,1,0,
-        6,7,4,
-        7,5,4
-    }; // count = 12 * 3 = 36
+        // Get neighbors
+        unsigned int nx, ny, nz, nIdx;
 
-    Mesh mesh;
+        //std::cout << "ID: " << idx << " || Neighbor IDs: \n";
 
-    if(argc > 1){
-        std::string objFile = argv[1];
-        mesh.parseFile(objFile);
-    } else {
-        mesh.parseFile("./models/cube.obj");
-    }
-    Renderer renderer;
-
-    // Model * View * Projection Matrix ( OpenGL requires it to be in reverse )
-    // Model: The object to render with Translations, Rotations, and Scaling
-    // View: The Camera
-    // Projection: The conversion of 3D to 2D coordinates 
-    
-    glm::mat4 proj = glm::perspective(glm::radians(60.f), 640.f/640.f, 0.01f, 100.f);
-    glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -3.f));
-    glm::vec3 trans(0.f);
-    glm::vec3 scaler(1.f);
-    glm::vec3 uColor(1.f);
-    glm::vec3 uLightDir(1.f);
-    float scaleFactor = 1;
-    
-    /* Vertex array object
-     * Links to the currently bound buffer when you call glVertexAttribPointer
-     * Allows you to simply bind the vao and ibo without binding everything else all the time
-     **/
-
-    //unsigned int vao;
-    //GLCALL(glGenVertexArrays(1, &vao));
-    //GLCALL(glBindVertexArray(vao));
-
-    // Buffer is the ID for the data
-    VertexBuffer vb(mesh.getVert(), mesh.getCount() * 3 * sizeof(float));
-    VertexBufferLayout vbl;
-    vbl.Push<float>(3);
-
-    /* Attributes are the different sections of your data
-     * i.e. positions, colors, normals
-     * Select the index for the Attribute
-     **/
-    //GLCALL(glEnableVertexAttribArray(0)); 
-    
-    /* Specify how this Attribute should be interpreted
-     * Create an index that can be selected,
-     * Size is the dimension of vertices i.e Vec2 or Vec3 (only allows up to 4)
-     * Type is the data type of each vertex
-     * Normalized makes sure the value is between -1 and 1
-     * Stride size of each vertex
-     * Pointer is where this index starts
-     * (index, size, type, normalized, stride, pointer)
-     **/
-    //GLCALL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (const void*)0));
-    
-    VertexArray va;
-    va.addBuffer(vb, vbl);
-
-    // Generate and populate Index Buffer
-    // ibo = Index Buffer Object
-    IndexBuffer ib(mesh.getInd(), mesh.getICount());
-    
-    // Read and return the shader files as strings
-    //ShaderSources sources = parseShader("res/shaders/base.shader");
-    
-    // Returns the program id for both shaders
-    //unsigned int shaderProgram = createShader(sources.vertexShader, sources.fragShader);
-
-    // Select the shader (bind)
-    //GLCALL(glUseProgram(shaderProgram));
-    
-    // Link to the color variable in our shaders
-    //GLCALL(int location = glGetUniformLocation(shaderProgram, "u_Color"));
-    //ASSERT(location != -1);
-
-    // Update the shader variable
-    //GLCALL(glUniform4f(location, 0.3f, 0.5f, 1.0f, 1.0f));
-
-    Shader shader("res/shaders/base.shader");
-    shader.Bind();
-    shader.setUniform4f("u_Color", 0.3f, 0.5f, 1.0f, 1.0f);
-
-    float colorValue = 0.05f;
-    float i = 0.f;
-
-    // Function keyCallback is called when input is detected
-    glfwSetKeyCallback(win, keyCallback); 
-
-    // ImGUI initialization
-    ImGui::CreateContext();
-    ImGui_ImplGlfw_InitForOpenGL(win, true);
-    ImGui_ImplOpenGL3_Init("#version 300 es");
-    ImGui::StyleColorsDark();
-
-    while(!glfwWindowShouldClose(win)){
-
-        float ratio;
-        int width, height;
-
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        glfwGetFramebufferSize(win, &width, &height);
-        ratio = width/(float)height;
-
-        // How much of the window is seen
-        GLCALL(glViewport(0, 0, width, height));
-        
-        // Clear screen to grey
-        //GLCALL(glClear(GL_COLOR_BUFFER_BIT));
-        //GLCALL(glClearColor(0.3f, 0.3f, 0.3f, 1));
-        renderer.clear();
-
-        // Select our index buffer
-        //ib.Bind();
-
-        /**
-        positions[0] = colorValue -0.5;
-        positions[2] = colorValue +0.5;
-        positions[4] = colorValue +0.5;
-        positions[6] = colorValue -0.5;
-        */
-
-        //va.Bind();
-        //vb.setData(positions, 4 * 2 * sizeof(float));
-        
-        glm::mat4 model(1.f);
-        
-        model = glm::scale(model, scaleFactor * scaler);
-        model = glm::rotate(model, glm::radians(trans[0]), glm::vec3(1.f, 0.f, 0.f));
-        model = glm::rotate(model, glm::radians(trans[1]), glm::vec3(0.f, 1.f, 0.f));
-        model = glm::rotate(model, glm::radians(trans[2]), glm::vec3(0.f, 0.f, 1.f));
-        glm::mat4 MVP = proj * view * model;
-        
-        
-        // Update color uniform
-        //GLCALL(glUniform4f(location, colorValue, 0.5f, 0.5f, 1.0f));
-        shader.setUniform4f("u_Color", uColor[0], uColor[1], uColor[2], 1.0f);
-        shader.setUniform3f("u_LightDir", uLightDir);
-        shader.setUniformMat4f("u_MVP", MVP);
-        shader.setUniformMat4f("u_Model", model);
-        shader.setUniformMat4f("u_View", view);
-
-        // Update color value
-        //colorValue = std::abs(std::sin(i+=0.01));
-
-        // Draw the currently bound buffer
-        // Draw elements is used for drawing with indices instead of raw positions
-        // nullptr is used instead of ibo because its already bound
-        
-        //GLCALL(glDrawElements(GL_LINES, ib.getCount(), GL_UNSIGNED_INT, nullptr));
-        //GLCALL(glDrawElements(GL_TRIANGLES, 3 * 2, GL_UNSIGNED_INT, nullptr));
-        
-        //shader.setUniform4f("u_Color", 0.5f, 0.5f, 1.0f, 1.0f);
-        renderer.drawTris(va, ib, shader);
-        
-        //shader.setUniform4f("u_Color", 0.f, 0.f, 0.f, 1.f);
-        //GLCALL(glDrawElements(GL_LINES, ib.getCount(), GL_UNSIGNED_INT, nullptr));
-        
-        {
-            ImGui::Begin("Debug Window");
-            ImGui::Text("Position Sliders");
-            ImGui::SliderFloat3("Rotation XYZ", &trans[0], -180.f, 180.f);
-            ImGui::SliderFloat3("Color RGB", &uColor[0], 0.f, 1.f);
-            ImGui::SliderFloat3("Light Direction Vector XYZ", &uLightDir[0], -1.f, 1.f);
-            ImGui::SliderFloat("Scale", &scaleFactor, 0.f, 2.f);
-            ImGui::End();
+        // Scan through all neighbors
+        for(nz = z - 1 >= 0 ? z - 1 : z; nz < z + 2 && nz < cg.MaxSize; nz++)
+        for(ny = y - 1 >= 0 ? y - 1 : y; ny < y + 2 && ny < cg.MaxSize; ny++)
+        for(nx = x - 1 >= 0 ? x - 1 : x; nx < x + 2 && nx < cg.MaxSize; nx++){
+            nIdx = cg.getIndex(nx, ny, nz);
+            //std::cout << nIdx << ", ";
+            if(nIdx != idx && grid[nIdx] == '1') neighbors++;
         }
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwSwapBuffers(win);
-        glfwPollEvents();
-    
-    }
-
-    // Clean up 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    // GLCALL(glDeleteProgram(shaderProgram));
-    glfwDestroyWindow(win);
-    glfwTerminate();
-}
-
-void keyCallback(GLFWwindow* win, int key, int scancode, int action, int mods){
-    if(key == GLFW_KEY_Q && action == GLFW_PRESS){
-        std::cout << "Close Program\n";
-        glfwSetWindowShouldClose(win, GLFW_TRUE);
-    }
-}
-
-/*
-unsigned int compileShader(const std::string& source, unsigned int type){
-    
-    GLCALL(unsigned int id = glCreateShader(type));
-    const char* src = source.c_str();
-    
-    // Select the shader address and compile
-    GLCALL(glShaderSource(id, 1, &src, nullptr));
-    GLCALL(glCompileShader(id));
-    
-    // Error handling
-    int result;
-    GLCALL(glGetShaderiv(id, GL_COMPILE_STATUS, &result));
-    
-    // Something went wrong
-    if(result == GL_FALSE){
-        int length;
-        GLCALL(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
+        //std::cout << "\nTotal: " << neighbors << std::endl;
         
-        // message must be a const length
-        // alloca() dynamically allocates this memory on the stack
-        char* message = (char*)alloca(length * sizeof(char));
-        GLCALL(glGetShaderInfoLog(id, length, &length, message));
-
-        std::cout << "Failed to compile shader!\n" << message << std::endl;
-        
-        // Delete shader because it failed
-        GLCALL(glDeleteShader(id));
-        return 0;
-    }
-
-    return id;
-}
-
-unsigned int createShader(const std::string& vertexShader, const std::string& fragShader){
-    
-    // id of the current program
-    GLCALL(unsigned int program = glCreateProgram());
-    
-    // vs and fs hold the id to their shaders
-    unsigned int vs = compileShader(vertexShader, GL_VERTEX_SHADER);
-    unsigned int fs = compileShader(fragShader, GL_FRAGMENT_SHADER);
-
-    // Give the shaders to our program
-    GLCALL(glAttachShader(program, vs));
-    GLCALL(glAttachShader(program, fs));
-    
-    // Make sure our program doesn't have any problems
-    GLCALL(glLinkProgram(program));
-    GLCALL(glValidateProgram(program));
-
-    // Remove shaders after saving the program
-    GLCALL(glDeleteShader(vs));
-    GLCALL(glDeleteShader(fs));
-
-    return program;
-
-}
-
-ShaderSources parseShader(const std::string& filepath){
-
-    std::ifstream inFile(filepath);
-    if(!inFile) std::cout << "Failed to open '" << filepath << "'\n"; 
-
-    std::string line;
-    std::stringstream ss[2];
-    
-    ShaderType type = ShaderType::NONE;
-
-    while(getline(inFile, line)){
-        if(line.find("#shader") != std::string::npos){
-            if(line.find("vertex") != std::string::npos){
-                type = ShaderType::VERTEX;
-            } else if(line.find("fragment") != std::string::npos){
-                type = ShaderType::FRAGMENT;
+        // Alive
+        if(grid[idx] != '0'){
+            
+            if(neighbors < 3 || neighbors > 5){
+                out[idx] = '0';
+            } else {
+                out[idx] = '1';
             }
-        } else {
-            ss[(int)type] << line << std::endl;
+
+        } 
+        // Dead
+        else {
+            
+            if(neighbors == 3){
+                out[idx] = '1';
+            } else {
+                out[idx] = '0';
+            }
         }
+
     }
+    
+    //std::cout << "New Grid: " << out << std::endl;
 
-    inFile.close();
-
-    return { ss[ShaderType::VERTEX].str(), ss[ShaderType::FRAGMENT].str() };
-
+    return out;
 }
-*/
