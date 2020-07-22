@@ -2,15 +2,19 @@
 
 #include "Renderer.hpp"
 
-Shader::Shader(const std::string& filepath)
-    : m_Filepath(filepath), m_RendererID(0) {
-    
-    ShaderSources sources = this->parseShader(filepath);
-    this->m_RendererID = this->createShader(sources.vertexShader, sources.fragShader);
+Shader::Shader(const std::string& filepath){
+    this->create(filepath);
 }
 
 Shader::~Shader(){
     GLCALL(glDeleteProgram(this->m_RendererID));
+}
+
+void Shader::create(const std::string& filepath){
+    this->m_Filepath = filepath;
+
+    ShaderSources sources = this->parseShader(filepath);
+    this->m_RendererID = this->createShader(sources.vertexShader, sources.fragShader);
 }
 
 void Shader::Bind() const {
@@ -41,6 +45,10 @@ void Shader::setUniform4f(const std::string& name, float f0, float f1, float f2,
 
 void Shader::setUniform3f(const std::string& name, const glm::vec3& u_Vec){
     GLCALL(glUniform3f(this->getUniformLocations(name), u_Vec[0], u_Vec[1], u_Vec[2]));
+}
+
+void Shader::setUniform2f(const std::string& name, const glm::vec2& u_Vec){
+    GLCALL(glUniform2f(this->getUniformLocations(name), u_Vec[0], u_Vec[1]));
 }
 
 void Shader::setUniformMat4f(const std::string& name, const glm::mat4& matrix){

@@ -2,7 +2,9 @@
 
 class VertexBuffer {
 public:
+    VertexBuffer(){std::cout << __FILE__ << std::endl;}
     VertexBuffer(const void* data, unsigned int size);
+    void create(const void* data, unsigned int size);
     virtual ~VertexBuffer();
 
     void Bind() const;

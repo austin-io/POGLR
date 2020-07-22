@@ -13,7 +13,9 @@ struct ShaderSources {
 
 class Shader {
     public:
+        Shader(){std::cout << __FILE__ << std::endl;}
         Shader(const std::string& filepath);
+        void create(const std::string& filepath);
         virtual ~Shader();
 
         void Bind() const;
@@ -23,6 +25,7 @@ class Shader {
         void setUniformMat4f(const std::string& name, const glm::mat4& matrix);
         void setUniform4f(const std::string& name, float, float, float, float);
         void setUniform3f(const std::string& name, const glm::vec3& u_Vec);
+        void setUniform2f(const std::string& name, const glm::vec2& u_Vec);
     protected:
         // Private Variables
         std::string m_Filepath;

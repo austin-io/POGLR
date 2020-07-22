@@ -10,6 +10,12 @@
 #include <sstream>
 #include <cmath>
 #include <map>
+#include <algorithm>
+#include <bitset>
+#include <cstdlib>
+#include <ctime>
+#include <functional>
+#include <thread>
 
 // OpenGL Graphics Library
 #include <GL/glew.h>
